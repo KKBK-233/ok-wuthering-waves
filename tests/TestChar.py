@@ -165,6 +165,29 @@ class TestChar(TaskTestCase):
         self.assertTrue(current.has_intro)
         self.assertFalse(current.has_sub_dps_intro)
 
+    def test_switch_target_skips_dead_char_and_allows_recovered_char(self):
+        class Task:
+            def time_elapsed_accounting_for_freeze(self, start, intro_motion_freeze=False):
+                if start < 0:
+                    return 10000
+                return time.time() - start
+
+        task = Task()
+        combat = AutoCombatTask.__new__(AutoCombatTask)
+        current = BaseChar(task, 0, char_type=CharType.MAIN_DPS)
+        healer = BaseChar(task, 1, char_type=CharType.HEALER)
+        sub_dps = BaseChar(task, 2, char_type=CharType.SUB_DPS)
+        combat.chars = [current, healer, sub_dps]
+        combat.char_alive_state = [True, False, True]
+        combat.char_dead_votes = [0, 0, 0]
+        combat.char_alive_votes = [0, 0, 0]
+        combat.log_info = lambda *args, **kwargs: None
+
+        self.assertEqual(combat._choose_switch_target(current, False), sub_dps)
+
+        combat.set_char_alive(healer, True)
+        self.assertEqual(combat._choose_switch_target(current, False), healer)
+
     def test_chisa_support_intro_records_buff_and_switches_immediately(self):
         class Task:
             char_config = {'Chisa DPS': False}
