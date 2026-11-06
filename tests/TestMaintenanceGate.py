@@ -84,6 +84,7 @@ class TestMaintenanceGate(unittest.TestCase):
         ok_module = types.ModuleType('ok')
         ok_module.TriggerTask = TriggerTask
         ok_module.Logger = Logger
+        ok_module.TaskDisabledException = type("TaskDisabledException", (Exception,), {})
         ok_module.run_task = lambda *_args, **_kwargs: None
         config_module = types.ModuleType('config')
         config_module.config = {}
@@ -91,6 +92,8 @@ class TestMaintenanceGate(unittest.TestCase):
         char_factory_module.char_names = []
         scene_module = types.ModuleType('src.scene.WWScene')
         scene_module.WWScene = object
+        task_icons_module = types.ModuleType('src.task.task_icons')
+        task_icons_module.task_icon = lambda _name: None
         combat_module = types.ModuleType('src.task.BaseCombatTask')
         combat_module.BaseCombatTask = BaseCombatTask
         combat_module.NotInCombatException = NotInCombatException
@@ -104,6 +107,7 @@ class TestMaintenanceGate(unittest.TestCase):
                 'src.char.CharFactory': char_factory_module,
                 'src.scene.WWScene': scene_module,
                 'src.task.BaseCombatTask': combat_module,
+                'src.task.task_icons': task_icons_module,
             },
         )
 
